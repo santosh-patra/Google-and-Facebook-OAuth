@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+  <meta name="google-signin-client_id"
+    content="145858277761-2mmsnhdfb9r0kuplvfkf6c275j0jb01c.apps.googleusercontent.com">
+  <script>
+    function sendMyData(data) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+      xhttp.open("POST", "google", true);
+      xhttp.setRequestHeader("Content-Type", "application/json");
+      xhttp.send(data);
+    }
+  </script>
+  <script>
+    function sendFbData(fbdata){
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status ==200){
+          console.log(this.responseText);
+        }
+      };
+      xhttp.open("POST","fbData",true);
+      xhttp.setRequestHeader('Content-Type','application/json');
+      xhttp.send(fbdata);
+    }
+  </script>
+ 
+  <title>OAuth</title>
+</head>
+
+<body>
+  <h1>Google SignIn!</h1>
+  <div class="g-signin2" data-onsuccess="onSignIn"></div>
+  <script>
+    function onSignIn(googleUser) {
+      var auth2 = gapi.auth2.getAuthInstance();
+      if (auth2.isSignedIn.get()) {
+        var profile = auth2.currentUser.get().getBasicProfile();
+        console.log("Profile"+profile)
+        console.log('ID: ' + profile.getId());
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail());
+        console.log('Token-ID: ' + googleUser.getAuthResponse().id_token);
+
+      }
+      let id = profile.getId();
+      let full_name = profile.getName();
+      let given_name = profile.getGivenName();
+      let family_name = profile.getFamilyName();
+      var url = profile.getImageUrl();
+      var email = profile.getEmail();
+      var token_id = googleUser.getAuthResponse().id_token;
+      let extractedData = {
+        id: id,
+        full_name: full_name,
+        given_name: given_name,
+        family_name: family_name,
+        url: url,
+        email: email,
+        token_id: token_id
+      }
+      sendMyData(JSON.stringify(extractedData));
+    }
+    /////
+    function statusChangeCallback(response) {
+      console.log('statusChangeCallback');
+      console.log(response);
+      if (response.status === 'connected') {
+        testAPI();
+      } else {
+        document.getElementById('status').innerHTML = 'Please log ' +
+          'into this webpaxge.';
+      }
+    }
+    window.fbAsyncInit = function () {
+      FB.init({
+        appId: '477833949828784',
+        cookie: true,
+        xfbml: true,
+        version: 'v5.0'
+      });
+
+      FB.getLoginStatus(function (response) {
+        statusChangeCallback(response);
+      });
+    };
+
+    
+    (function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function checkLoginState() {
+      FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        var fb_token_id = response.authResponse.accessToken
+        
+        console.log("FB:"+fb_token_id);
+      }
+    });
+    }
+    function testAPI() {
+      console.log('Welcome!  Fetching your information.... ');
+      FB.api('/me', function (response) {
+        console.log('Successful login for: ' + response.name);
+        var fb_token_id;
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+        fb_token_id = response.authResponse.accessToken;
+        
+      }
+    })
+        let id = response.id;
+        let name = response.name;
+        console.log("id:"+id);
+        console.log("Name:"+name);
+        console.log("FB:"+fb_token_id);
+        let fbData = {
+          id: id,
+          name: name,
+          token_id : fb_token_id
+        }
+        sendFbData(JSON.stringify(fbData));
+      });
+    }
+  </script>
+  <br /><br />
+  <h1>FaceBook</h1>
+  <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+  </fb:login-button>
+
+  <div id="status">
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+/node_modules
+.env
+cert.pem
+data.json
+data2.json
+fb.html
+fb.js
+fbb.html
+index.js
+key.pem
+key.txt
+
